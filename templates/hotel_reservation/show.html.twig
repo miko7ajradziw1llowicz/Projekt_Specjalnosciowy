@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HotelReservation{% endblock %}
+
+{% block body %}
+    <h1>HotelReservation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ hotel_reservation.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ hotel_reservation.Name }}</td>
+            </tr>
+            <tr>
+                <th>Lastname</th>
+                <td>{{ hotel_reservation.Lastname }}</td>
+            </tr>
+            <tr>
+                <th>PhoneNumber</th>
+                <td>{{ hotel_reservation.PhoneNumber }}</td>
+            </tr>
+            <tr>
+                <th>HowManyAdultPeople</th>
+                <td>{{ hotel_reservation.HowManyAdultPeople }}</td>
+            </tr>
+            <tr>
+                <th>HowManyKids</th>
+                <td>{{ hotel_reservation.HowManyKids }}</td>
+            </tr>
+            <tr>
+                <th>DateFrom</th>
+                <td>{{ hotel_reservation.DateFrom ? hotel_reservation.DateFrom|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateTo</th>
+                <td>{{ hotel_reservation.DateTo ? hotel_reservation.DateTo|date('Y-m-d') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_hotel_reservation_index') }}">back to list</a>
+
+    <a href="{{ path('app_hotel_reservation_edit', {'id': hotel_reservation.id}) }}">edit</a>
+
+    {{ include('hotel_reservation/_delete_form.html.twig') }}
+{% endblock %}

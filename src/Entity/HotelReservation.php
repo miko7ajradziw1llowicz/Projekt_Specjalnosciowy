@@ -7,6 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\VarDumper\Cloner\Data;
+
 #[ORM\Entity(repositoryClass: HotelReservationRepository::class)]
 class HotelReservation
 {
@@ -39,7 +41,7 @@ class HotelReservation
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateFrom = null;
      /**
-    * @Assert\GreaterThanOrEqual("today+1days")
+    * @Assert\GreaterThanOrEqual(propertyPath="DateFrom")
     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateTo = null;
@@ -132,9 +134,12 @@ class HotelReservation
 
         return $this;
     }
-    public function getPrice(): int
+    
+    public function getPrice()
     {
-        $price=$this->getHowManyKids()*30+$this->getHowManyAdultPeople()*50;
+       
+        $diff = date_diff($this->getDateFrom(), $this->getDateTo())->format("%d");
+        $price=($this->getHowManyAdultPeople()*50+$this->getHowManyKids()*35)*intVal($diff);
 
         return $price;
     }

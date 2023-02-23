@@ -51,7 +51,7 @@ class HotelReservationController extends AbstractController
         
         return $this->render('hotel_reservation/show.html.twig', [
             'hotel_reservation' => $hotelReservation,
-            'price'=>$hotelReservation=$hotelReservation->getPrice()
+            'getPrice'=>$hotelReservation=$hotelReservation->getPrice()
         ]);
     }
 

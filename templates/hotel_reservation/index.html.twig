@@ -16,6 +16,8 @@
                 <th>How Many Kids</th>
                 <th>Date From</th>
                 <th>Date To</th>
+                <th>Ilość dni w sumie</th>
+                <th>Cena</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -30,7 +32,26 @@
                 <td>{{ hotel_reservation.HowManyKids }}</td>
                 <td>{{ hotel_reservation.DateFrom ? hotel_reservation.DateFrom|date('Y-m-d') : '' }}</td>
                 <td>{{ hotel_reservation.DateTo ? hotel_reservation.DateTo|date('Y-m-d') : '' }}</td>
-           
+                  <td>
+
+                    {% set difference = date(hotel_reservation.DateFrom|date('Y-m-d')).diff(date(hotel_reservation.DateTo|date('Y-m-d'))) %}
+                    {% set Days = difference.days %}
+                    {% if Days == 1 %}
+                        1 day
+                    {% else %}
+                        {{ Days }}
+
+                    {% endif %}
+
+                </td>
+                 <td>
+
+                   
+                        {% set sum = (hotel_reservation.HowManyAdultPeople*50+hotel_reservation.HowManyKids*35)*Days %}
+                            {{sum}}
+                   
+
+                </td>
                 <td>
                     <a href="{{ path('app_hotel_reservation_show', {'id': hotel_reservation.id}) }}">show</a>
                     <a href="{{ path('app_hotel_reservation_edit', {'id': hotel_reservation.id}) }}">edit</a>

@@ -30,6 +30,7 @@
                 <td>{{ hotel_reservation.HowManyKids }}</td>
                 <td>{{ hotel_reservation.DateFrom ? hotel_reservation.DateFrom|date('Y-m-d') : '' }}</td>
                 <td>{{ hotel_reservation.DateTo ? hotel_reservation.DateTo|date('Y-m-d') : '' }}</td>
+           
                 <td>
                     <a href="{{ path('app_hotel_reservation_show', {'id': hotel_reservation.id}) }}">show</a>
                     <a href="{{ path('app_hotel_reservation_edit', {'id': hotel_reservation.id}) }}">edit</a>

@@ -132,4 +132,10 @@ class HotelReservation
 
         return $this;
     }
+    public function getPrice(): int
+    {
+        $price=$this->getHowManyKids()*30+$this->getHowManyAdultPeople()*50;
+
+        return $price;
+    }
 }

@@ -9,15 +9,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Persistence\ManagerRegistry;
 
-// #[Route('/hotel/reservation')]
+
 class HotelReservationController extends AbstractController
 {
     #[Route('/', name: 'app_hotel_reservation_index', methods: ['GET'])]
-    public function index(HotelReservationRepository $hotelReservationRepository): Response
+    public function index(ManagerRegistry $doctrine,HotelReservationRepository $hotelReservationRepository): Response
     {
+       
+       
+      
         return $this->render('hotel_reservation/index.html.twig', [
             'hotel_reservations' => $hotelReservationRepository->findAll(),
+            
         ]);
     }
 
@@ -43,8 +48,10 @@ class HotelReservationController extends AbstractController
     #[Route('/{id}', name: 'app_hotel_reservation_show', methods: ['GET'])]
     public function show(HotelReservation $hotelReservation): Response
     {
+        
         return $this->render('hotel_reservation/show.html.twig', [
             'hotel_reservation' => $hotelReservation,
+            'price'=>$hotelReservation=$hotelReservation->getPrice()
         ]);
     }
 
@@ -71,6 +78,7 @@ class HotelReservationController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$hotelReservation->getId(), $request->request->get('_token'))) {
             $hotelReservationRepository->remove($hotelReservation, true);
+           
         }
 
         return $this->redirectToRoute('app_hotel_reservation_index', [], Response::HTTP_SEE_OTHER);

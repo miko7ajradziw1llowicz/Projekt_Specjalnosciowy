@@ -41,7 +41,7 @@ class HotelReservation
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateFrom = null;
      /**
-    * @Assert\GreaterThanOrEqual(propertyPath="DateFrom")
+    * @Assert\GreaterThan(propertyPath="DateFrom")
     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateTo = null;
@@ -139,8 +139,8 @@ class HotelReservation
     {
        
         $diff = date_diff($this->getDateFrom(), $this->getDateTo())->format("%d");
-        // $price=($this->getHowManyAdultPeople()*50+$this->getHowManyKids()*35)*intVal($diff);
+        $price=($this->getHowManyAdultPeople()*50+$this->getHowManyKids()*35)*intVal($diff);
 
-        return $diff;
+        return $price;
     }
 }

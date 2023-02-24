@@ -3,8 +3,9 @@
 {% block title %}Hotel Reservation System{% endblock %}
 
 {% block body %}
+{% if (is_granted('ROLE_ADMIN'))%}
     <h1 style="text-align: center">Hotel Reservation System</h1>
-
+ 
     <table class="table">
         <thead>
             <tr>
@@ -16,8 +17,8 @@
                 <th>How Many Kids</th>
                 <th>Date From</th>
                 <th>Date To</th>
-                <th>Ilość dni w sumie</th>
-                <th>Cena</th>
+                <th>Total of</th>
+                <th>Price</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -53,8 +54,10 @@
 
                 </td>
                 <td>
-                    <a href="{{ path('app_hotel_reservation_show', {'id': hotel_reservation.id}) }}">show</a>
-                    <a href="{{ path('app_hotel_reservation_edit', {'id': hotel_reservation.id}) }}">edit</a>
+                                    <a class="btn btn-primary" href="{{ path('app_hotel_reservation_show', {'id': hotel_reservation.id}) }}" role="button">Show</a>
+           
+                        <a class="btn btn-primary" href="{{ path('app_hotel_reservation_edit', {'id': hotel_reservation.id}) }}" role="button">Edit</a>
+                 
                 </td>
             </tr>
         {% else %}
@@ -64,6 +67,78 @@
         {% endfor %}
         </tbody>
     </table>
+<a class="btn btn-primary" href="{{ path('app_hotel_reservation_new') }}" role="button">Create new</a>
+   <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">LOG OUT</a>
 
-    <a href="{{ path('app_hotel_reservation_new') }}">Create new</a>
+  {% endif %}
+    {# if temperature > 18 and temperature < 27 #}
+  {% if (is_granted('ROLE_SECRETARY') and (is_granted('ROLE_USER')))%}
+    <h1 style="text-align: center">Hotel Reservation System</h1>
+ 
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Lastname</th>
+                <th>Phone Number</th>
+                <th>How Many Adults</th>
+                <th>How Many Kids</th>
+                <th>Date From</th>
+                <th>Date To</th>
+                <th>Total of</th>
+                <th>Price</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+        {% for hotel_reservation in hotel_reservations %}
+            <tr>
+                <td>{{ hotel_reservation.id }}</td>
+                <td>{{ hotel_reservation.Name }}</td>
+                <td>{{ hotel_reservation.Lastname }}</td>
+                <td>{{ hotel_reservation.PhoneNumber }}</td>
+                <td>{{ hotel_reservation.HowManyAdultPeople }}</td>
+                <td>{{ hotel_reservation.HowManyKids }}</td>
+                <td>{{ hotel_reservation.DateFrom ? hotel_reservation.DateFrom|date('Y-m-d') : '' }}</td>
+                <td>{{ hotel_reservation.DateTo ? hotel_reservation.DateTo|date('Y-m-d') : '' }}</td>
+                  <td>
+
+                    {% set difference = date(hotel_reservation.DateFrom|date('Y-m-d')).diff(date(hotel_reservation.DateTo|date('Y-m-d'))) %}
+                    {% set Days = difference.days %}
+                    {% if Days == 1 %}
+                        1 day
+                    {% else %}
+                        {{ Days }}
+
+                    {% endif %}
+
+                </td>
+                 <td>
+
+                   
+                        {% set sum = (hotel_reservation.HowManyAdultPeople*50+hotel_reservation.HowManyKids*35)*Days %}
+                            {{sum}}
+                   
+
+                </td>
+             
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">LOG OUT</a>
+  <a class="btn btn-primary" href="{{ path('app_hotel_reservation_new') }}" role="button">Create new</a>
+   {% elseif not is_granted("ROLE_ADMIN") %}
+    <h1>You dont have any permissions on this account </h1>
+     <a class="btn btn-primary" href="{{ path('app_login') }}" role="button">Login</a>
+     <a class="btn btn-primary" href="{{ path('app_register') }}" role="button">Register</a>
+   {% endif %}
+
+
+  
 {% endblock %}

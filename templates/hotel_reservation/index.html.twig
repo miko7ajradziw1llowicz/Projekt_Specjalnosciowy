@@ -68,7 +68,7 @@
         </tbody>
     </table>
 <a class="btn btn-primary" href="{{ path('app_hotel_reservation_new') }}" role="button">Create new</a>
-   <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">LOG OUT</a>
+   <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">Logout</a>
 
   {% endif %}
     {# if temperature > 18 and temperature < 27 #}
@@ -131,7 +131,7 @@
         {% endfor %}
         </tbody>
     </table>
-    <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">LOG OUT</a>
+    <a class="btn btn-danger" href="{{ path('app_logout') }}" role="button">Logout</a>
   <a class="btn btn-primary" href="{{ path('app_hotel_reservation_new') }}" role="button">Create new</a>
    {% elseif not is_granted("ROLE_ADMIN") %}
     <h1>You dont have any permissions on this account </h1>

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\HotelReservation;
 use App\Form\HotelReservationType;
 use App\Repository\HotelReservationRepository;
@@ -83,4 +83,31 @@ class HotelReservationController extends AbstractController
 
         return $this->redirectToRoute('app_hotel_reservation_index', [], Response::HTTP_SEE_OTHER);
     }
+   
+
+
+
+#[Route('/api/hotel-reservations', name: 'app_hotel_reservation_api', methods: ['POST'])]
+public function createReservation(Request $request, HotelReservationRepository $hotelReservationRepository): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    $hotelReservation = new HotelReservation();
+    $form = $this->createForm(HotelReservationType::class, $hotelReservation);
+    $form->submit($data);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $hotelReservationRepository->save($hotelReservation, true);
+
+        return new JsonResponse([
+            'success' => true,
+            'id' => $hotelReservation->getId(),
+        ]);
+    }
+
+    return new JsonResponse([
+        'success' => false,
+        'errors' => (string) $form->getErrors(true),
+    ], 400);
+}
+
 }

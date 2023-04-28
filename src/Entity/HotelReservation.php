@@ -8,10 +8,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\VarDumper\Cloner\Data;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: HotelReservationRepository::class)]
-class HotelReservation
+class HotelReservation implements JsonSerializable
 {
+
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -45,6 +48,20 @@ class HotelReservation
     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateTo = null;
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'Name' => $this->getName(),
+            'Lastname' => $this->getLastname(),
+            'PhoneNumber' => $this->getPhoneNumber(),
+            'HowManyAdultPeople' => $this->getHowManyAdultPeople(),
+            'HowManyKids' => $this->getHowManyKids(),
+            'DateFrom' => $this->getDateFrom(),
+            'DateTo' => $this->getDateTo(),
+        ];
+    }
+
 
     public function getId(): ?int
     {

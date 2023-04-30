@@ -12,11 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 namespace App\Controller;
 use App\Entity\HotelReservation;
 use App\Form\HotelReservationType;
+use App\Repository\HotelReservationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use DateTimeImmutable;
+use Doctrine\Persistence\ManagerRegistry;
 /**
  * @Route("/api/hotel-reservations")
  */
@@ -45,25 +49,37 @@ class HotelReservationApiController extends AbstractController
 
         return $this->json($hotelReservation);
     }
+    
+    #[Route('/', name: 'hotel_reservation_api_create', methods: ['POST'])]
 
-    /**
-     * @Route("/", name="hotel_reservation_api_create", methods={"POST"})
-     */
-    public function create(Request $request, EntityManagerInterface $entityManager): Response
+    public function createHotelReservation(ManagerRegistry $doctrine, Request $request): Response
     {
-        $hotelReservation = new HotelReservation();
-        $form = $this->createForm(HotelReservationType::class, $hotelReservation);
-        $form->submit(json_decode($request->getContent(), true));
-
-        if (!$form->isValid()) {
-            return $this->json(['error' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
+        $reservation = new HotelReservation();
+        $data = json_decode($request->getContent(), true);
+    
+        if (!isset($data['Name']) || !isset($data['Lastname']) || !isset($data['PhoneNumber']) || !isset($data['HowManyAdultPeople']) || !isset($data['HowManyKids']) || !isset($data['DateFrom']) || !isset($data['DateTo'])) {
+            return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
-
-        $entityManager->persist($hotelReservation);
-        $entityManager->flush();
-
-        return $this->json($hotelReservation);
+    
+        $reservation->setName($data['Name']);
+        $reservation->setLastname($data['Lastname']);
+        $reservation->setPhoneNumber($data['PhoneNumber']);
+        $reservation->setHowManyAdultPeople($data['HowManyAdultPeople']);
+        $reservation->setHowManyKids($data['HowManyKids']);
+    
+        // set the date fields using DateTimeImmutable to avoid mutation
+        $dateFrom = new DateTimeImmutable($data['DateFrom']);
+        $dateTo = new DateTimeImmutable($data['DateTo']);
+        $reservation->setDateFrom($dateFrom);
+        $reservation->setDateTo($dateTo);
+    
+        $entityManager = $doctrine->getManager();
+        $entityManager->getRepository(HotelReservation::class)->save($reservation);
+        return new JsonResponse(['GoodGood']);
     }
+    
+    
+    
 
     /**
      * @Route("/{id}", name="hotel_reservation_api_update", methods={"PUT"})

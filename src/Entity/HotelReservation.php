@@ -48,7 +48,7 @@ class HotelReservation implements JsonSerializable
     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateTo = null;
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return [
             'id' => $this->getId(),
@@ -59,6 +59,7 @@ class HotelReservation implements JsonSerializable
             'HowManyKids' => $this->getHowManyKids(),
             'DateFrom' => $this->getDateFrom(),
             'DateTo' => $this->getDateTo(),
+            'GetPrice'=>$this->getPrice(),
         ];
     }
 

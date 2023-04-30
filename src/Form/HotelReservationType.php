@@ -25,6 +25,7 @@ class HotelReservationType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => HotelReservation::class,
+            'csrf_protection' => false,
         ]);
     }
 }

@@ -52,11 +52,10 @@ class HotelReservationApiController extends AbstractController
     
     #[Route('/', name: 'hotel_reservation_api_create', methods: ['POST'])]
 
-    public function createHotelReservation(ManagerRegistry $doctrine, Request $request): Response
+    public function createHotelReservation(ManagerRegistry $doctrine, Request $request): JsonResponse
     {
         $reservation = new HotelReservation();
         $data = json_decode($request->getContent(), true);
-    
         if (!isset($data['Name']) || !isset($data['Lastname']) || !isset($data['PhoneNumber']) || !isset($data['HowManyAdultPeople']) || !isset($data['HowManyKids']) || !isset($data['DateFrom']) || !isset($data['DateTo'])) {
             return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
@@ -72,7 +71,6 @@ class HotelReservationApiController extends AbstractController
         $dateTo = new DateTimeImmutable($data['DateTo']);
         $reservation->setDateFrom($dateFrom);
         $reservation->setDateTo($dateTo);
-    
         $entityManager = $doctrine->getManager();
         $entityManager->getRepository(HotelReservation::class)->save($reservation);
         return new JsonResponse(['GoodGood']);

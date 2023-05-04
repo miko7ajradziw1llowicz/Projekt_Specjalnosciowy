@@ -72,8 +72,11 @@ class HotelReservationApiController extends AbstractController
         $reservation->setDateFrom($dateFrom);
         $reservation->setDateTo($dateTo);
         $entityManager = $doctrine->getManager();
-        $entityManager->getRepository(HotelReservation::class)->save($reservation);
-        return new JsonResponse(['GoodGood']);
+        $entityManager->persist($reservation);
+        $entityManager->flush($reservation);
+        return $this->json([
+            'Reservation'=>"Saved",
+        ]);
     }
     
     

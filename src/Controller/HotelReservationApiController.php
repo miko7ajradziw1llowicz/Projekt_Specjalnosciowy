@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+
 use App\Form\HotelReservationType;
 use App\Entity\HotelReservation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,7 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller;
+
 use App\Entity\HotelReservation;
 use App\Form\HotelReservationType;
 use App\Repository\HotelReservationRepository;
@@ -21,6 +24,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
+
 /**
  * @Route("/api/hotel-reservations")
  */
@@ -49,7 +53,7 @@ class HotelReservationApiController extends AbstractController
 
         return $this->json($hotelReservation);
     }
-    
+
     #[Route('/', name: 'hotel_reservation_api_create', methods: ['POST'])]
 
     public function createHotelReservation(ManagerRegistry $doctrine, Request $request): JsonResponse
@@ -59,13 +63,13 @@ class HotelReservationApiController extends AbstractController
         if (!isset($data['Name']) || !isset($data['Lastname']) || !isset($data['PhoneNumber']) || !isset($data['HowManyAdultPeople']) || !isset($data['HowManyKids']) || !isset($data['DateFrom']) || !isset($data['DateTo'])) {
             return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
-    
+
         $reservation->setName($data['Name']);
         $reservation->setLastname($data['Lastname']);
         $reservation->setPhoneNumber($data['PhoneNumber']);
         $reservation->setHowManyAdultPeople($data['HowManyAdultPeople']);
         $reservation->setHowManyKids($data['HowManyKids']);
-    
+
         // set the date fields using DateTimeImmutable to avoid mutation
         $dateFrom = new DateTimeImmutable($data['DateFrom']);
         $dateTo = new DateTimeImmutable($data['DateTo']);
@@ -75,50 +79,126 @@ class HotelReservationApiController extends AbstractController
         $entityManager->persist($reservation);
         $entityManager->flush($reservation);
         return $this->json([
-            'Reservation'=>"Saved",
+            'Reservation' => "Saved",
         ]);
     }
-    
-    
-    
 
-    /**
-     * @Route("/{id}", name="hotel_reservation_api_update", methods={"PUT"})
-     */
-    public function update(Request $request, EntityManagerInterface $entityManager, int $id): Response
+
+
+
+    #[Route('/{id}', name: 'hotel_reservation_api_update', methods: ['PUT'])]
+    public function updateHotelReservation(ManagerRegistry $doctrine, Request $request, int $id): JsonResponse
     {
-        $hotelReservation = $entityManager->getRepository(HotelReservation::class)->find($id);
-
-        if (!$hotelReservation) {
-            return $this->json(['error' => 'Hotel reservation not found'], Response::HTTP_NOT_FOUND);
+        $entityManager = $doctrine->getManager();
+        $reservation = $entityManager->getRepository(HotelReservation::class)->find($id);
+        if (!$reservation) {
+            return new JsonResponse(['error' => 'Reservation not found'], 404);
         }
-
-        $form = $this->createForm(HotelReservationType::class, $hotelReservation);
-        $form->submit(json_decode($request->getContent(), true));
-
-        if (!$form->isValid()) {
-            return $this->json(['error' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
+        $data = json_decode($request->getContent(), true);
+        if (isset($data['Name'])) {
+            $reservation->setName($data['Name']);
         }
-
+        if (isset($data['Lastname'])) {
+            $reservation->setLastname($data['Lastname']);
+        }
+        if (isset($data['PhoneNumber'])) {
+            $reservation->setPhoneNumber($data['PhoneNumber']);
+        }
+        if (isset($data['HowManyAdultPeople'])) {
+            $reservation->setHowManyAdultPeople($data['HowManyAdultPeople']);
+        }
+        if (isset($data['HowManyKids'])) {
+            $reservation->setHowManyKids($data['HowManyKids']);
+        }
+        if (isset($data['DateFrom'])) {
+            $dateFrom = new DateTimeImmutable($data['DateFrom']);
+            $reservation->setDateFrom($dateFrom);
+        }
+        if (isset($data['DateTo'])) {
+            $dateTo = new DateTimeImmutable($data['DateTo']);
+            $reservation->setDateTo($dateTo);
+        }
         $entityManager->flush();
-
-        return $this->json($hotelReservation);
+        return $this->json([
+            'Reservation' => "Updated",
+        ]);
     }
 
-    /**
-     * @Route("/{id}", name="hotel_reservation_api_delete", methods={"DELETE"})
-     */
-    public function delete(EntityManagerInterface $entityManager, int $id): Response
+    #[Route('/api/{id}', name: 'patch', methods: ['PATCH'])]
+    public function apiUpdate(Request $request, HotelReservation $reservation, EntityManagerInterface $entityManager): JsonResponse
     {
-        $hotelReservation = $entityManager->getRepository(HotelReservation::class)->find($id);
+        $data = json_decode($request->getContent(), true);
 
-        if (!$hotelReservation) {
-            return $this->json(['error' => 'Hotel reservation not found'], Response::HTTP_NOT_FOUND);
+        foreach ($data as $key => $value) {
+            if ($value !== null) {
+                $method = 'set' . ucfirst($key);
+                if (method_exists($reservation, $method)) {
+                    $reservation->$method($value);
+                }
+            }
         }
 
-        $entityManager->remove($hotelReservation);
         $entityManager->flush();
 
-        return new Response(null, Response::HTTP_NO_CONTENT);
+        return $this->json([
+            'message' => 'Product updated',
+        ]);
+    }
+    #[Route('/{id}', name: 'hotel_reservation_api_patch', methods: ['PATCH'])]
+    public function patchHotelReservation(ManagerRegistry $doctrine, Request $request, int $id): JsonResponse
+    {
+        $entityManager = $doctrine->getManager();
+        $reservation = $entityManager->getRepository(HotelReservation::class)->find($id);
+        if (!$reservation) {
+            return new JsonResponse(['error' => 'Reservation not found'], 404);
+        }
+        $data = json_decode($request->getContent(), true);
+        foreach ($data as $key => $value) {
+            switch ($key) {
+                case 'Name':
+                    $reservation->setName($value);
+                    break;
+                case 'Lastname':
+                    $reservation->setLastname($value);
+                    break;
+                case 'PhoneNumber':
+                    $reservation->setPhoneNumber($value);
+                    break;
+                case 'HowManyAdultPeople':
+                    $reservation->setHowManyAdultPeople($value);
+                    break;
+                case 'HowManyKids':
+                    $reservation->setHowManyKids($value);
+                    break;
+                case 'DateFrom':
+                    $dateFrom = new DateTimeImmutable($value);
+                    $reservation->setDateFrom($dateFrom);
+                    break;
+                case 'DateTo':
+                    $dateTo = new DateTimeImmutable($value);
+                    $reservation->setDateTo($dateTo);
+                    break;
+                default:
+                    break;
+            }
+        }
+        $entityManager->flush();
+        return $this->json([
+            'Reservation' => "Updated",
+        ]);
+    }
+    #[Route('/{id}', name: 'hotel_reservation_api_delete', methods: ['DELETE'])]
+    public function deleteHotelReservation(ManagerRegistry $doctrine, int $id): JsonResponse
+    {
+        $entityManager = $doctrine->getManager();
+        $reservation = $entityManager->getRepository(HotelReservation::class)->find($id);
+        if (!$reservation) {
+            return new JsonResponse(['error' => 'Reservation not found'], 404);
+        }
+        $entityManager->remove($reservation);
+        $entityManager->flush();
+        return $this->json([
+            'Reservation' => "Deleted",
+        ]);
     }
 }

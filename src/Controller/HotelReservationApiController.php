@@ -78,9 +78,9 @@ class HotelReservationApiController extends AbstractController
         $entityManager = $doctrine->getManager();
         $entityManager->persist($reservation);
         $entityManager->flush($reservation);
-        return $this->json([
-            'Reservation' => "Saved",
-        ]);
+        $message = sprintf('Reservation for %s %s has been added. Price is: %s PLN', $reservation->getName(), $reservation->getLastname(), $reservation->getPrice());
+
+        return new JsonResponse(['message' => $message], JsonResponse::HTTP_CREATED);
     }
 
 
@@ -119,31 +119,11 @@ class HotelReservationApiController extends AbstractController
             $reservation->setDateTo($dateTo);
         }
         $entityManager->flush();
-        return $this->json([
-            'Reservation' => "Updated",
-        ]);
+        $message = sprintf('Reservation with ID %d has been updated', $id);
+        return $this->json(['message' => $message]);
     }
 
-    #[Route('/api/{id}', name: 'patch', methods: ['PATCH'])]
-    public function apiUpdate(Request $request, HotelReservation $reservation, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-
-        foreach ($data as $key => $value) {
-            if ($value !== null) {
-                $method = 'set' . ucfirst($key);
-                if (method_exists($reservation, $method)) {
-                    $reservation->$method($value);
-                }
-            }
-        }
-
-        $entityManager->flush();
-
-        return $this->json([
-            'message' => 'Product updated',
-        ]);
-    }
+    
     #[Route('/{id}', name: 'hotel_reservation_api_patch', methods: ['PATCH'])]
     public function patchHotelReservation(ManagerRegistry $doctrine, Request $request, int $id): JsonResponse
     {
@@ -183,9 +163,8 @@ class HotelReservationApiController extends AbstractController
             }
         }
         $entityManager->flush();
-        return $this->json([
-            'Reservation' => "Updated",
-        ]);
+        $message = sprintf('Reservation with ID %d has been patched', $id);
+        return $this->json(['message' => $message]);
     }
     #[Route('/{id}', name: 'hotel_reservation_api_delete', methods: ['DELETE'])]
     public function deleteHotelReservation(ManagerRegistry $doctrine, int $id): JsonResponse
@@ -197,8 +176,7 @@ class HotelReservationApiController extends AbstractController
         }
         $entityManager->remove($reservation);
         $entityManager->flush();
-        return $this->json([
-            'Reservation' => "Deleted",
-        ]);
+        $message = sprintf('Reservation with ID %d has been deleted', $id);
+        return new JsonResponse(['message' => $message]);
     }
 }

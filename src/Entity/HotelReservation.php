@@ -26,9 +26,24 @@ class HotelReservation implements JsonSerializable
     #[ORM\Column(length: 255)]
     private ?string $Lastname = null;
 
+
     #[ORM\Column]
+    /**
+     * @Assert\Length(
+     *     min = 9,
+     *     max = 11,
+     *     minMessage = "Phone number must have at least 9 digits",
+     *     maxMessage = "Phone number cannot have more than 11 digits"
+     * )
+     */
     private ?int $PhoneNumber = null;
-/**
+
+
+
+
+
+
+    /**
     * @Assert\GreaterThanOrEqual("1")
     */
     #[ORM\Column]
@@ -48,6 +63,9 @@ class HotelReservation implements JsonSerializable
     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $DateTo = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $price = null;
     public function jsonSerialize():mixed
     {
         return [
@@ -160,5 +178,12 @@ class HotelReservation implements JsonSerializable
         $price=($this->getHowManyAdultPeople()*50+$this->getHowManyKids()*35)*intVal($diff);
 
         return $price;
+    }
+
+    public function setPrice(?int $price): static
+    {
+        $this->price = $price;
+
+        return $this;
     }
 }
